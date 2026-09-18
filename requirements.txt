@@ -1,0 +1,4 @@
+# Dependencia opcional: solo necesaria para ejecutar la interfaz gráfica
+# (src/view/interfaz_kivy.py). La interfaz de consola no requiere nada
+# fuera de la librería estándar de Python.
+kivy[base]>=2.3.0

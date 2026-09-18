@@ -11,18 +11,21 @@ Hipoteca-inversa/
 │   └── casos_de_prueba.xlsx         # Casos de prueba documentados
 ├── src/
 │   ├── controller/
-│   │   └── __init__.py              # Orquesta la comunicación entre view y model
+│   │   ├── __init__.py
+│   │   └── hipoteca_controller.py   # Lógica compartida entre las vistas: parseo de datos y manejo de errores
 │   ├── model/
 │   │   ├── __init__.py
 │   │   └── logica_hipoteca_inversa.py  # Lógica de negocio y cálculos financieros
 │   └── view/
 │       ├── __init__.py
-│       └── console.py               # Interfaz de consola (entrada/salida de datos)
+│       ├── console.py               # Interfaz de consola (entrada/salida de datos)
+│       └── interfaz_kivy.py         # Interfaz gráfica con Kivy (entrada/salida de datos)
 ├── tests/
 │   ├── __init__.py
 │   └── tests_hipoteca_inversa.py    # Pruebas unitarias de la lógica de negocio
 ├── .gitignore
 ├── LICENSE
+├── requirements.txt                 # Dependencia opcional (Kivy) para la interfaz gráfica
 └── README.md
 ```
 
@@ -31,8 +34,8 @@ Hipoteca-inversa/
 El proyecto sigue una separación de responsabilidades tipo **MVC**:
 
 - **`model`**: contiene toda la lógica de cálculo de la hipoteca inversa (validaciones, fórmulas financieras, reglas de negocio y excepciones propias del dominio). No depende de cómo se muestren los datos.
-- **`view`**: expone la interfaz de consola (`console.py`), encargada de solicitar datos al usuario y mostrar resultados. No contiene lógica de negocio.
-- **`controller`**: actúa como intermediario entre `view` y `model`, coordinando el flujo de la aplicación sin mezclar responsabilidades de cálculo ni de presentación.
+- **`view`**: expone la interfaz de consola (`console.py`) y una interfaz gráfica construida con [Kivy](https://kivy.org/) (`interfaz_kivy.py`), ambas encargadas de solicitar datos al usuario y mostrar resultados. Ninguna contiene lógica de negocio.
+- **`controller`**: actúa como intermediario entre `view` y `model`, coordinando el flujo de la aplicación sin mezclar responsabilidades de cálculo ni de presentación. `hipoteca_controller.py` es usado por **ambas** vistas (consola y Kivy): convierte el texto ingresado en los tipos de datos del modelo (tolerando formatos numéricos como `1,2` o `300.000.000`) y traduce cualquier error —de formato, de regla de negocio o inesperado— a un mensaje legible mediante una única excepción, `ErrorCalculoHipoteca`.
 - **`tests`**: pruebas unitarias que validan el comportamiento de `model`, incluyendo casos válidos, casos límite y manejo de excepciones.
 - **`doc`**: soporte documental del proyecto (entrevista de requisitos y casos de prueba).
 
@@ -68,7 +71,12 @@ La función valida los datos de entrada y lanza una excepción específica por c
 ## Requisitos
 
 - Python 3.10 o superior
-- No se requieren dependencias externas (usa únicamente la librería estándar de Python)
+- La interfaz de consola no requiere dependencias externas (usa únicamente la librería estándar de Python)
+- La interfaz gráfica (`interfaz_kivy.py`) requiere [Kivy](https://kivy.org/):
+
+  ```bash
+  pip install -r requirements.txt
+  ```
 
 Puedes verificar tu versión de Python con:
 
@@ -98,7 +106,17 @@ python src/view/console.py
 
 Esto iniciará la aplicación en modo consola, donde podrás ingresar los datos solicitados (valor del inmueble, porcentaje de financiación, tasa de interés mensual y plazo en meses) para obtener la cuota mensual, los abonos totales y los intereses totales de la hipoteca inversa.
 
-### 4. Ejecutar las pruebas unitarias
+### 4. Ejecutar la interfaz gráfica (Kivy)
+
+Instala primero la dependencia de Kivy (ver [Requisitos](#requisitos)) y luego ejecuta, desde la raíz del proyecto:
+
+```bash
+python -m src.view.interfaz_kivy
+```
+
+Se abrirá una ventana con campos para ingresar el valor del inmueble, el porcentaje de desembolso, la tasa de interés mensual y el plazo en meses. Al presionar **Calcular**, se muestra la cuota mensual, el total de abonos y el total de intereses, o el mensaje de error correspondiente si algún dato no cumple las reglas de negocio.
+
+### 5. Ejecutar las pruebas unitarias
 
 Desde la raíz del proyecto:
 
